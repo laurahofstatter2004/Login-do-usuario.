@@ -1,0 +1,56 @@
+package LoginUsuario;
+
+import Classes_de_Conexoes.Conexao_com_Banco;
+import javax.swing.*;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.ArrayList;
+
+public class LoginDAO {
+
+    Connection con;
+    PreparedStatement pstm;
+    ResultSet rs;
+    ArrayList<LoginDTO> lista = new ArrayList<>();
+
+    public void autenticacaoLogin(LoginDTO objlogindto) {
+        String sql = "insert into login(email_usuario, senha_usuario) values(?, ?)\";\n";
+
+        con = new Conexao_com_Banco().conectaDB();
+
+        try {
+            pstm = con.prepareStatement(sql);
+            pstm.setString(1, objlogindto.getEmail_usuario());
+            pstm.setString(2, objlogindto.getSenha_usuario());
+
+            pstm.execute();
+            pstm.close();
+
+        } catch (SQLException erro) {
+            JOptionPane.showMessageDialog(null, "LoginDAO CadastrarLogin: " + erro);
+
+        }
+    }
+
+    public ArrayList<LoginDTO> PesquisarLogin() {
+        String sql = "delete from login where id_usuario = ?";
+        try {
+            pstm = con.prepareStatement(sql);
+            rs = pstm.executeQuery();
+
+            while (rs.next()) {
+                LoginDTO objlogindto = new LoginDTO();
+                objlogindto.setId_usuario(rs.getInt("id_usuario"));
+                objlogindto.setEmail_usuario(rs.getString("email_usuario"));
+                objlogindto.setSenha_usuario(rs.getString("senha_usuario"));
+
+                lista.add(objlogindto);
+            }
+
+        } catch (SQLException erro) {
+            JOptionPane.showMessageDialog(null, "LoginDAO PesquisarLogin: " + erro);
+        }
+        return lista;
+    }
